@@ -1,0 +1,30 @@
+{
+  "name": "spring-initializr-vscode",
+  "displayName": "Spring Initializr",
+  "description": "Generate Spring Boot projects from Spring Initializr inside VS Code.",
+  "version": "0.0.1",
+  "publisher": "23wj5a0533",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "main": "extension.js",
+  "activationEvents": [
+    "onCommand:spring-initializr.generate"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "spring-initializr.generate",
+        "title": "Spring Initializr: Generate Project"
+      }
+    ]
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.11",
+    "node-fetch": "^2.6.9"
+  },
+  "scripts": {
+    "pretest": "echo \"No tests configured\"",
+    "test": "node --version"
+  }
+}

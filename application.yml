@@ -1,0 +1,2 @@
+### moved to application.postgres.yml to avoid overriding classpath config
+### postgres config moved to application.postgres.yml
