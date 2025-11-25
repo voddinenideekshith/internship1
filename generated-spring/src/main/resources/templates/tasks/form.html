@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${task.id != null ? 'Edit Task' : 'Create New Task'}">Task Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .ipfs-info {
+            background-color: #e7f3f2;
+            border-left: 4px solid #65c3ba;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/tasks">
+                <i class="bi bi-database"></i> Task Manager
+            </a>
+            <span class="navbar-text text-white">
+                <i class="bi bi-cloud"></i> IPFS Decentralized Storage
+            </span>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="form-container">
+            <!-- Alert Messages -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i th:class="${taskId != null ? 'bi bi-pencil' : 'bi bi-plus-circle'}"></i>
+                        <span th:text="${taskId != null ? 'Edit Task' : 'Create New Task'}"></span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- IPFS Information -->
+                    <div class="ipfs-info mb-4">
+                        <h6>
+                            <i class="bi bi-info-circle"></i> About IPFS Storage
+                        </h6>
+                        <p class="mb-0 small">
+                            Your task data will be uploaded to IPFS (InterPlanetary File System), 
+                            a decentralized storage network. A unique Content Identifier (CID) will be 
+                            generated and stored in the database for retrieval.
+                        </p>
+                        <p th:if="${task.cid}" class="mt-2 mb-0 small">
+                            <strong>Current CID:</strong> 
+                            <code th:text="${task.cid}"></code>
+                            <a th:href="@{'https://ipfs.io/ipfs/' + ${task.cid}}" 
+                               target="_blank" 
+                               class="ms-2">
+                                <i class="bi bi-box-arrow-up-right"></i> View on IPFS
+                            </a>
+                        </p>
+                    </div>
+
+                    <form th:action="${taskId != null ? '/tasks/' + taskId + '/update' : '/tasks'}" 
+                          method="post" 
+                          th:object="${task}">
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">
+                                <i class="bi bi-tag"></i> Task Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="title" 
+                                   th:field="*{title}" 
+                                   placeholder="Enter task title"
+                                   required
+                                   maxlength="255">
+                            <div class="form-text">Give your task a clear, descriptive title</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label">
+                                <i class="bi bi-file-text"></i> Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      th:field="*{description}" 
+                                      rows="5"
+                                      placeholder="Enter task description"
+                                      required></textarea>
+                            <div class="form-text">Provide detailed information about the task</div>
+                        </div>
+
+                        <div th:if="${taskId != null}" class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            Updating this task will create a new version on IPFS with a new CID. 
+                            The old version remains accessible via its original CID.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                            <a href="/tasks" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i th:class="${taskId != null ? 'bi bi-save' : 'bi bi-cloud-upload'}"></i>
+                                <span th:text="${taskId != null ? 'Update Task' : 'Create Task'}"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Info Card -->
+            <div class="card mt-4 border-0">
+                <div class="card-body bg-light">
+                    <h6 class="card-title">
+                        <i class="bi bi-lightbulb"></i> Quick Tips
+                    </h6>
+                    <ul class="small mb-0">
+                        <li>Tasks are automatically uploaded to IPFS when created or updated</li>
+                        <li>Each task gets a unique CID (Content Identifier) on IPFS</li>
+                        <li>IPFS data is immutable - updates create new versions with new CIDs</li>
+                        <li>All CIDs remain accessible on the IPFS network permanently</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
