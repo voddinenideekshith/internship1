@@ -1,4 +1,3 @@
-
 package com.example.springdemo.service;
 
 import com.example.springdemo.domain.Task;
@@ -9,7 +8,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +35,7 @@ public class TaskService {
     }
 
     @Cacheable(value = "tasks", key = "#id")
-    public Optional<Task> findById(String id) {
+    public Optional<Task> findById(Long id) {
         try {
             return repository.findById(id);
         } catch (Exception e) {
@@ -50,8 +48,13 @@ public class TaskService {
     public Task create(TaskDto dto, String owner) throws Exception {
         try {
             String json = mapper.writeValueAsString(dto);
-            String cid = ipfsService.uploadJson(json);
-            Task t = new Task(cid, dto.getTitle(), dto.getDescription(), Instant.now(), owner);
+            String cid = ipfsService.add(json);
+            Task t = new Task();
+            t.setTitle(dto.getTitle());
+            t.setDescription(dto.getDescription());
+            t.setCid(cid);
+            t.setStatus(dto.getStatus());
+            t.setOwner(owner);
             return repository.save(t);
         } catch (Exception e) {
             System.err.println("Redis cache error (create): " + e.getMessage());
@@ -60,16 +63,16 @@ public class TaskService {
     }
 
     @CacheEvict(value = "tasks", allEntries = true)
-    public Optional<Task> update(String id, TaskDto dto) throws Exception {
+    public Optional<Task> update(Long id, TaskDto dto) throws Exception {
         try {
             return repository.findById(id).map(existing -> {
                 try {
                     String json = mapper.writeValueAsString(dto);
-                    String cid = ipfsService.uploadJson(json);
+                    String cid = ipfsService.add(json);
                     existing.setCid(cid);
                     existing.setTitle(dto.getTitle());
                     existing.setDescription(dto.getDescription());
-                    existing.setUpdatedAt(Instant.now());
+                    existing.setStatus(dto.getStatus());
                     return repository.save(existing);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -82,7 +85,7 @@ public class TaskService {
     }
 
     @CacheEvict(value = "tasks", allEntries = true)
-    public void delete(String id) {
+    public void delete(Long id) {
         try {
             repository.deleteById(id);
         } catch (Exception e) {
@@ -94,7 +97,7 @@ public class TaskService {
     @Cacheable(value = "ipfs-tasks", key = "#cid")
     public Task getTask(String cid) throws Exception {
         try {
-            String json = ipfsService.fetchJson(cid);
+            String json = ipfsService.get(cid);
             return mapper.readValue(json, Task.class);
         } catch (Exception e) {
             System.err.println("Redis cache error (getTask): " + e.getMessage());
