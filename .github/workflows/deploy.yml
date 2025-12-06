@@ -35,6 +35,11 @@ jobs:
         run: mvn -B -DskipTests package
         working-directory: generated-spring
 
+      - name: Copy JAR to Docker context
+        run: |
+          mkdir -p target
+          cp generated-spring/target/*.jar target/app.jar
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
