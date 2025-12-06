@@ -60,9 +60,8 @@ public class TaskController {
     }
 
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
-        Long longId = Long.valueOf(id);
-        return taskService.findById(longId)
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        return taskService.findById(id)
                 .map(task -> {
                     TaskDto dto = new TaskDto();
                     dto.setTitle(task.getTitle());
@@ -79,12 +78,11 @@ public class TaskController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateFromForm(@PathVariable String id,
+    public String updateFromForm(@PathVariable Long id,
                                  @ModelAttribute TaskDto dto,
                                  RedirectAttributes redirectAttributes) {
         try {
-            Long longId = Long.valueOf(id);
-            return taskService.update(longId, dto)
+            return taskService.update(id, dto)
                     .map(updated -> {
                         redirectAttributes.addFlashAttribute("message", 
                             "Task updated successfully! New CID: " + updated.getCid());
@@ -102,10 +100,9 @@ public class TaskController {
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteFromForm(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    public String deleteFromForm(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            Long longId = Long.valueOf(id);
-            taskService.delete(longId);
+            taskService.delete(id);
             redirectAttributes.addFlashAttribute("message", 
                 "Task deleted successfully. IPFS data remains immutable.");
         } catch (Exception e) {
@@ -146,10 +143,9 @@ public class TaskController {
 
     @PutMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<?> updateApi(@PathVariable String id, @RequestBody TaskDto dto) {
+    public ResponseEntity<?> updateApi(@PathVariable Long id, @RequestBody TaskDto dto) {
         try {
-            Long longId = Long.valueOf(id);
-            return taskService.update(longId, dto)
+            return taskService.update(id, dto)
                     .<ResponseEntity<?>>map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -159,10 +155,9 @@ public class TaskController {
 
     @DeleteMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<?> deleteApi(@PathVariable String id) {
+    public ResponseEntity<?> deleteApi(@PathVariable Long id) {
         try {
-            Long longId = Long.valueOf(id);
-            taskService.delete(longId);
+            taskService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("Failed to delete task", e.getMessage()));
