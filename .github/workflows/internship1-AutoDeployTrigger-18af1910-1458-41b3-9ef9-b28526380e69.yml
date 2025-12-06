@@ -1,0 +1,49 @@
+name: Trigger auto deployment for internship1
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/internship1-AutoDeployTrigger-18af1910-1458-41b3-9ef9-b28526380e69.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.INTERNSHIP1_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.INTERNSHIP1_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.INTERNSHIP1_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: cruxojaw7gyw4hu.azurecr.io
+          registryUsername: ${{ secrets.INTERNSHIP1_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.INTERNSHIP1_REGISTRY_PASSWORD }}
+          containerAppName: internship1
+          resourceGroup: rg-dev
+          imageToBuild: cruxojaw7gyw4hu.azurecr.io/internship1:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
