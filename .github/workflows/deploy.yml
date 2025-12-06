@@ -33,6 +33,7 @@ jobs:
 
       - name: Build package (skip tests)
         run: mvn -B -DskipTests package
+        working-directory: generated-spring
 
       - name: Login to Azure
         uses: azure/login@v1
