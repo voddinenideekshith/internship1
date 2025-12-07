@@ -46,14 +46,14 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.ACR_LOGIN_SERVER }}/internship1/internship1-dev:ci-${{ github.run_id }}
+          tags: ${{ env.ACR_LOGIN_SERVER }}/GitTasker/GitTasker-dev:ci-${{ github.run_id }}
 
       - name: Deploy image to Azure Container App
         uses: azure/cli@v1
         with:
           inlineScript: |
             az account show
-            IMAGE="${{ env.ACR_LOGIN_SERVER }}/internship1/internship1-dev:ci-${{ github.run_id }}"
+            IMAGE="${{ env.ACR_LOGIN_SERVER }}/GitTasker/GitTasker-dev:ci-${{ github.run_id }}"
             for attempt in {1..5}; do
               echo "Deployment attempt $attempt of 5..."
               az containerapp update \
